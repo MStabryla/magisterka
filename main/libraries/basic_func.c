@@ -1,5 +1,3 @@
-#include "basic_func.h"
-
 #include "Arduino.h"
 
 char* getDistanceMess(int distanceEcho, int distanceTrig){
@@ -11,8 +9,9 @@ char* getDistanceMess(int distanceEcho, int distanceTrig){
   digitalWrite(distanceTrig, LOW);
 
   long resultIn = 0;
-  resultIn = pulseIn(distanceEcho, HIGH);
+  resultIn = pulseIn(distanceEcho, HIGH, 1000);
   resultIn /= 58;
+  char* mess;
   sprintf(mess, "dist: %d cm", resultIn);
 
   return mess;
@@ -21,14 +20,15 @@ char* getDistanceMess(int distanceEcho, int distanceTrig){
 float getDistance(int distanceEcho, int distanceTrig){
 
   digitalWrite(distanceTrig, LOW);
-  delayMicroseconds(5);
+  delayMicroseconds(1);
   digitalWrite(distanceTrig, HIGH);
   delayMicroseconds(15);
   digitalWrite(distanceTrig, LOW);
 
-  float resultIn = 0;
+  long resultIn = 0;
   resultIn = pulseIn(distanceEcho, HIGH);
-  resultIn /= 58;
 
-  return resultIn;
+  float soundParameter = 58.0;
+  
+  return resultIn /= soundParameter;
 }

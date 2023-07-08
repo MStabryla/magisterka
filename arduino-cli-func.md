@@ -1,0 +1,1 @@
+arduino-cli compile --fqbn esp32:esp32:esp32 --libraries ./libraries --output-dir ../output/bin main.ino
