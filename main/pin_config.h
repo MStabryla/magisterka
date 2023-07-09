@@ -4,5 +4,5 @@
 #define ECHO_2 23
 #define TRIG_2 22
 
-#define ECHO_3 29
-#define TRIG_3 28
+#define ECHO_3 18
+#define TRIG_3 19
