@@ -1,7 +1,6 @@
 #include "Arduino.h"
 #include "libraries/basic_func.h"
-#include "pin_config.h"
-
+#include "libraries/movement.h"
 
 void setup() {
   // put your setup code here, to run once:
@@ -18,14 +17,15 @@ void setup() {
 }
 
 int TESTCOUNTER = 0;
-void loop() {
-  // odczyt odległości w cm:
+
+void debug_loop_distance(){
+
   float distanceF = getDistance(ECHO_1,TRIG_1);
   delay(5);
   float distanceR = getDistance(ECHO_2,TRIG_2);
   delay(5);
   float distanceL = getDistance(ECHO_3,TRIG_3);
-  //float distanceL = getDistance(ECHO_3,TRIG_3);
+  
   Serial.print("front: ");
   Serial.print(distanceF);
 
@@ -38,9 +38,7 @@ void loop() {
   addMeasureToDistanceArray('f',distanceF);
   addMeasureToDistanceArray('r',distanceR);
   addMeasureToDistanceArray('l',distanceL);
-
-  delay(1000);
-
+  
   if(++TESTCOUNTER > 10)
   {
     TESTCOUNTER = 0;
@@ -68,4 +66,35 @@ void loop() {
     }
     Serial.println(" ");
   }
+
 }
+
+void debug_loop_movement(){
+    //Serial.println("forward");
+    Forward(100);
+    delay(5000);
+    //Serial.println("backward");
+    Backward(100);
+    delay(5000);
+    //Serial.println("stop");
+    Stop();
+}
+
+
+void debug_loop(){
+    debug_loop_distance();
+    //debug_loop_movement();
+}
+
+
+
+
+void loop() {
+
+  // DEBUG
+  debug_loop();
+
+  delay(1000);
+  
+}
+
