@@ -70,20 +70,20 @@ void debug_loop_distance(){
 }
 
 void debug_loop_movement(){
-    //Serial.println("forward");
-    Forward(100);
+    Serial.println("forward");
+    Forward(255);
     delay(5000);
-    //Serial.println("backward");
-    Backward(100);
+    Serial.println("backward");
+    Backward(255);
     delay(5000);
-    //Serial.println("stop");
+    Serial.println("stop");
     Stop();
 }
 
 
 void debug_loop(){
     debug_loop_distance();
-    //debug_loop_movement();
+    debug_loop_movement();
 }
 
 

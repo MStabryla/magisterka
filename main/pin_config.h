@@ -9,5 +9,5 @@
 
 #define DRIVE_A1 25
 #define DRIVE_A2 26 
-#define DRIVE_B1 27
-#define DRIVE_B2 14
+#define DRIVE_B1 14
+#define DRIVE_B2 27
