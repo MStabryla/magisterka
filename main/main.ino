@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "libraries/basic_func.h"
 #include "libraries/movement.h"
+#include "libraries/broadcast.h"
 
 void setup() {
   // put your setup code here, to run once:
@@ -14,6 +15,8 @@ void setup() {
 
   pinMode(TRIG_3, OUTPUT);
   pinMode(ECHO_3, INPUT);
+
+  WiFi_Broadcast_Setup();
 }
 
 int TESTCOUNTER = 0;
