@@ -1,7 +1,6 @@
 #include "Arduino.h"
-#include "libraries/basic_func.h"
-#include "libraries/movement.h"
 #include "libraries/broadcast.h"
+#include "libraries/autonomousSystem.h"
 
 void setup() {
   // put your setup code here, to run once:
@@ -73,6 +72,18 @@ void debug_loop_distance(){
 }
 
 void debug_loop_movement(){
+    Serial.println("forward");
+    Forward(255);
+    delay(5000);
+    // Serial.println("backward");
+    // Backward(255);
+    // delay(5000);
+    Serial.println("stop");
+    Stop();
+    delay(1000);
+}
+
+void debug_loop_movement_turn(){
     Serial.println("left");
     Turn(255,0.35f);
     delay(5000);
@@ -83,10 +94,17 @@ void debug_loop_movement(){
     Stop();
 }
 
+void autonomousMovement(){
+  if(autonomousMove())
+  {
+    delay(MILI_TO_TURN);
+  }
+}
 
 void debug_loop(){
-    //debug_loop_distance();
-    debug_loop_movement();
+  debug_loop_distance();
+  //debug_loop_movement();
+  autonomousMovement();
 }
 
 
