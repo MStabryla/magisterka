@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "libraries/broadcast.h"
 #include "libraries/autonomousSystem.h"
+#include "libraries/bluetoothControl.h"
 
 void setup() {
   // put your setup code here, to run once:
@@ -16,6 +17,7 @@ void setup() {
   pinMode(ECHO_3, INPUT);
 
   WiFi_Broadcast_Setup();
+  Bluetooth_Setup();
 }
 
 int TESTCOUNTER = 0;
@@ -37,9 +39,9 @@ void debug_loop_distance(){
   Serial.print("; left: ");
   Serial.println(distanceL);
 
-  addMeasureToDistanceArray('f',distanceF);
-  addMeasureToDistanceArray('r',distanceR);
-  addMeasureToDistanceArray('l',distanceL);
+  addMeasureToDistanceArray('f',(int)distanceF);
+  addMeasureToDistanceArray('r',(int)distanceR);
+  addMeasureToDistanceArray('l',(int)distanceL);
   
   if(++TESTCOUNTER > 10)
   {
@@ -95,6 +97,8 @@ void debug_loop_movement_turn(){
 }
 
 void autonomousMovement(){
+  if(!autoMode)
+    return;
   if(autonomousMove())
   {
     delay(MILI_TO_TURN);
@@ -102,20 +106,20 @@ void autonomousMovement(){
 }
 
 void debug_loop(){
-  debug_loop_distance();
+  //debug_loop_distance();
   //debug_loop_movement();
+  Bluetooth_Loop();
   autonomousMovement();
+  if(!autoMode)
+  {
+    Stop();
+  }
 }
 
 
-
-
 void loop() {
-
   // DEBUG
   debug_loop();
-
-  delay(1000);
   
 }
 

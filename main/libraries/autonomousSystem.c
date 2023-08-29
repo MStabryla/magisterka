@@ -4,7 +4,7 @@
 
 #define MIN_DISTANCE 28
 #define SPEED 255
-#define MILI_TO_TURN 100
+#define MILI_TO_TURN 10
 
 float getFrontDistance()
 {

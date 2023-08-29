@@ -33,7 +33,7 @@ float getDistance(int distanceEcho, int distanceTrig){
   return resultIn /= soundParameter;
 }
 
-void addMeasureToDistanceArray(char measureIndex,float measure)
+void addMeasureToDistanceArray(char measureIndex, int measure)
 {
   for(int i=0;i<DISTANCE_ARRAY_COUNT-1;i++)
   {
