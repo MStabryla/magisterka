@@ -1,13 +1,11 @@
 #include <BluetoothSerial.h>
 #include "string.h"
 
-#define BT_ID "MAG_2"
-
 BluetoothSerial SerialBT;
 
-void Bluetooth_Setup()
+void Bluetooth_Setup(String device_ID)
 {
-    SerialBT.begin(BT_ID);
+    SerialBT.begin(device_ID);
 }
 
 void Bluetooth_Loop()

@@ -2,9 +2,14 @@
 #include "libraries/broadcast.h"
 #include "libraries/autonomousSystem.h"
 #include "libraries/bluetoothControl.h"
+#include "EEPROM.h"
+
+String device_ID;
 
 void setup() {
-  // put your setup code here, to run once:
+
+  device_ID = EEPROM.readString(1);
+  
   Serial.begin(115200);
   // FRONT: 32 - TRIG; 35 - ECHO
   pinMode(TRIG_1, OUTPUT);
@@ -16,8 +21,10 @@ void setup() {
   pinMode(TRIG_3, OUTPUT);
   pinMode(ECHO_3, INPUT);
 
-  WiFi_Broadcast_Setup();
-  Bluetooth_Setup();
+  WiFi_Broadcast_Setup(device_ID);
+  Bluetooth_Setup(device_ID);
+
+
 }
 
 int TESTCOUNTER = 0;

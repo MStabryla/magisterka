@@ -1,3 +1,3 @@
 #include "broadcast.c"
 
-void WiFi_Broadcast_Setup();
+void WiFi_Broadcast_Setup(String device_ID);
