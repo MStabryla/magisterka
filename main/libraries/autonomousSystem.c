@@ -4,7 +4,7 @@
 
 #define MIN_DISTANCE 28
 #define SPEED 255
-#define MILI_TO_TURN 10
+#define MILI_TO_TURN 100
 
 float getFrontDistance()
 {
@@ -27,9 +27,19 @@ bool detectBlockade()
 // jeżeli true, to znaczy, że robot skręca
 bool autonomousMove()
 {
+    if(autoMode)
+    {
+        //Serial.println("forward");
+        Forward(SPEED);
+    } 
+    else
+    {
+        //Serial.println("stop");
+        Stop();
+        return true;
+    }
     float right = 0;
     float left = 0;
-    Forward(SPEED);
     //Tutaj wykrywamy, czy robot nie jest za daleko od innych robotów
     if(detectBlockade())
     {
@@ -38,11 +48,13 @@ bool autonomousMove()
         if(right >= left)
         {
             //Albo wykrywamy za pomocą żyroskopu albo krokowo
+            //Serial.println("right");
             Right(SPEED);
             return true;
         }
         else
         {
+            //Serial.println("left");
             Left(SPEED);
             return true;
         }

@@ -17,7 +17,7 @@ void Bluetooth_Loop()
         {
             autoMode = true;
         }
-        else if(strcmp(bluetoothCommand.c_str(), "stop"))
+        else if(strcmp(bluetoothCommand.c_str(), "stop") == 0)
         {
             autoMode = false;
         }

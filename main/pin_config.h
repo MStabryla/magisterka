@@ -11,3 +11,5 @@
 #define DRIVE_A2 26 
 #define DRIVE_B1 14
 #define DRIVE_B2 27
+
+#define DIODE_AUTO_MODE 13

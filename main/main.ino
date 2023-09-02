@@ -2,11 +2,17 @@
 #include "libraries/broadcast.h"
 #include "libraries/autonomousSystem.h"
 #include "libraries/bluetoothControl.h"
+#include "libraries/mesh.h"
 #include "EEPROM.h"
 
-String device_ID;
+String device_ID = "TEST";
 
 void setup() {
+
+  EEPROM.begin(8);
+  
+  //EEPROM.writeString(1,"MAG_3");
+  //EEPROM.commit();
 
   device_ID = EEPROM.readString(1);
   
@@ -21,9 +27,14 @@ void setup() {
   pinMode(TRIG_3, OUTPUT);
   pinMode(ECHO_3, INPUT);
 
+  //diode
+  pinMode(DIODE_AUTO_MODE, OUTPUT);
+
   WiFi_Broadcast_Setup(device_ID);
   Bluetooth_Setup(device_ID);
-
+  delay(1000);
+  Serial.print("ID: ");
+  Serial.println(device_ID);
 
 }
 
@@ -104,8 +115,6 @@ void debug_loop_movement_turn(){
 }
 
 void autonomousMovement(){
-  if(!autoMode)
-    return;
   if(autonomousMove())
   {
     delay(MILI_TO_TURN);
@@ -113,20 +122,21 @@ void autonomousMovement(){
 }
 
 void debug_loop(){
-  //debug_loop_distance();
-  //debug_loop_movement();
-  Bluetooth_Loop();
-  autonomousMovement();
-  if(!autoMode)
-  {
-    Stop();
-  }
+  debug_loop_distance();
+  debug_loop_movement();
+  // Bluetooth_Loop();
+  // autonomousMovement();
+  // if(!autoMode)
+  // {
+  //   Stop();
+  // }
 }
 
 
 void loop() {
   // DEBUG
-  debug_loop();
-  
+  //debug_loop();
+  Bluetooth_Loop();
+  autonomousMovement();
+  digitalWrite(DIODE_AUTO_MODE,autoMode);
 }
-
