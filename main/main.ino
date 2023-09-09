@@ -10,9 +10,6 @@ String device_ID = "TEST";
 void setup() {
 
   EEPROM.begin(8);
-  
-  //EEPROM.writeString(1,"MAG_3");
-  //EEPROM.commit();
 
   device_ID = EEPROM.readString(1);
   
@@ -30,12 +27,17 @@ void setup() {
   //diode
   pinMode(DIODE_AUTO_MODE, OUTPUT);
 
-  WiFi_Broadcast_Setup(device_ID);
-  Bluetooth_Setup(device_ID);
-  delay(1000);
+  //WiFi_Broadcast_Setup(device_ID);
+  //Bluetooth_Setup(device_ID);
   Serial.print("ID: ");
   Serial.println(device_ID);
 
+  Mesh_Module_Init();
+  Mesh_Init();
+  Mesh_Network_Config();
+  Mesh_Start();
+  //delay(1000);
+  //Bluetooth_Setup(device_ID);
 }
 
 int TESTCOUNTER = 0;
@@ -136,7 +138,12 @@ void debug_loop(){
 void loop() {
   // DEBUG
   //debug_loop();
-  Bluetooth_Loop();
+  //Bluetooth_Loop();
   autonomousMovement();
   digitalWrite(DIODE_AUTO_MODE,autoMode);
+  if(mesh_stated)
+  {
+    //jak działa mesh
+  }
+  
 }

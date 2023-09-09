@@ -2,10 +2,12 @@
 #include "string.h"
 
 BluetoothSerial SerialBT;
+bool serialBTStarted = false;
 
 void Bluetooth_Setup(String device_ID)
 {
     SerialBT.begin(device_ID);
+    serialBTStarted = true;
 }
 
 void Bluetooth_Loop()
