@@ -6,7 +6,7 @@
 #include "esp_mesh_internal.h"
 #include "nvs_flash.h"
 
-#define DEBUG true
+#define DEBUG false
 
 #define RX_SIZE (1500)
 #define TX_SIZE (1460)
@@ -92,13 +92,13 @@ void Mesh_Module_Init()
 //TESTY W DOMU
 static const int CONFIG_MESH_MAX_LAYER = 3;
 static const uint8_t MESH_ID[6] = { 0x77, 0x77, 0x77, 0x77, 0x77, 0x77};
-static const uint8_t CONFIG_MESH_CHANNEL = 0x01;
+static const uint8_t CONFIG_MESH_CHANNEL = 0x04;
 static const String CONFIG_MESH_ROUTER_SSID = "MAXX_LAN";
 static const String CONFIG_MESH_ROUTER_PASSWD = "debina23";
 static const uint8_t CONFIG_MESH_AP_CONNECTIONS = 0x03;
 static const uint8_t CONFIG_NONMESH_AP_CONNECTIONS = 0x07;
 static const String CONFIG_MESH_AP_PASSWD = "debina23";
-static wifi_auth_mode_t CONFIG_MESH_AP_AUTHMODE = WIFI_AUTH_OPEN;
+static wifi_auth_mode_t CONFIG_MESH_AP_AUTHMODE = WIFI_AUTH_WPA2_PSK;
 
 void Mesh_Init()
 {
@@ -118,7 +118,6 @@ void Mesh_Network_Config()
     //mesh_config.crypto_funcs = &g_wifi_default_mesh_crypto_funcs;
     mesh_config.allow_channel_switch = true;
     /* mesh ID */
-    //IP4_ADDR(&mesh_config.mesh_id.mip.ip4,192,168,10,1);
     memcpy((uint8_t *) &mesh_config.mesh_id, MESH_ID, 6);
     /* channel (must match the router's channel) */
     mesh_config.channel = CONFIG_MESH_CHANNEL;

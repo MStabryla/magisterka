@@ -4,6 +4,7 @@
 #include "libraries/bluetoothControl.h"
 #include "libraries/mesh.h"
 #include "EEPROM.h"
+#include "ESP32Ping.h"
 
 String device_ID = "TEST";
 
@@ -27,17 +28,16 @@ void setup() {
   //diode
   pinMode(DIODE_AUTO_MODE, OUTPUT);
 
-  //WiFi_Broadcast_Setup(device_ID);
-  //Bluetooth_Setup(device_ID);
   Serial.print("ID: ");
   Serial.println(device_ID);
-
-  Mesh_Module_Init();
-  Mesh_Init();
-  Mesh_Network_Config();
-  Mesh_Start();
-  //delay(1000);
-  //Bluetooth_Setup(device_ID);
+  delay(1000);
+  // Mesh_Module_Init();
+  // Mesh_Init();
+  // Mesh_Network_Config();
+  // Mesh_Start();
+  //WiFi_Broadcast_Setup();
+  Bluetooth_Setup(device_ID);
+  //Wifi_Scan_Connect_2();
 }
 
 int TESTCOUNTER = 0;
@@ -134,16 +134,28 @@ void debug_loop(){
   // }
 }
 
-
 void loop() {
   // DEBUG
   //debug_loop();
   //Bluetooth_Loop();
+  
   autonomousMovement();
   digitalWrite(DIODE_AUTO_MODE,autoMode);
+  // while(!WiFi_Scan_Connect(device_ID.c_str()))
+  // {
+  //   Serial.printf("WiFi connection not established. Restarting scan ...");
+  //   delay(1000);
+  // }
   if(mesh_stated)
   {
     //jak działa mesh
   }
-  
+
+  // bool success = Ping.ping("www.google.com", 4);
+  // if(!success){
+  //   Serial.println("Ping failed");
+  // }
+  // else
+  //   Serial.println("Ping succesful.");
+  // delay(5000);
 }
