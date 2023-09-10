@@ -137,7 +137,7 @@ void debug_loop(){
 void loop() {
   // DEBUG
   //debug_loop();
-  //Bluetooth_Loop();
+  Bluetooth_Loop();
   
   autonomousMovement();
   digitalWrite(DIODE_AUTO_MODE,autoMode);

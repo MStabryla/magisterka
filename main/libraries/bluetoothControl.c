@@ -10,6 +10,16 @@ void Bluetooth_Setup(String device_ID)
     serialBTStarted = true;
 }
 
+void Bluetooth_Write_Debug()
+{
+    SerialBT.print("front: ");
+    SerialBT.print( getFrontDistance());
+    SerialBT.print("; right: ");
+    SerialBT.print(getRightDistance());
+    SerialBT.print("; left: ");
+    SerialBT.println(getLeftDistance());
+}
+
 void Bluetooth_Loop()
 {
     String bluetoothCommand = "";
@@ -22,6 +32,13 @@ void Bluetooth_Loop()
         else if(strcmp(bluetoothCommand.c_str(), "stop") == 0)
         {
             autoMode = false;
+        }
+    }
+    if(SerialBT.connected())
+    {
+        if(autoMode)
+        {
+            Bluetooth_Write_Debug();
         }
     }
 }

@@ -4,7 +4,8 @@
 
 #define MIN_DISTANCE 28
 #define SPEED 255
-#define MILI_TO_TURN 100
+#define MILI_TO_TURN 1000
+#define TURN_DIST_DIFF_TOL 5
 
 float getFrontDistance()
 {
@@ -25,27 +26,40 @@ bool detectBlockade()
     return getFrontDistance() <= MIN_DISTANCE;
 }
 // jeżeli true, to znaczy, że robot skręca
+float right = 0;
+float left = 0;
+float old_right = 0;
+float old_left = 0;
+bool turnAround = false;
+
 bool autonomousMove()
 {
-    if(autoMode)
+    if(!autoMode)
     {
-        //Serial.println("forward");
-        Forward(SPEED);
-    } 
-    else
-    {
-        //Serial.println("stop");
         Stop();
-        return true;
-    }
-    float right = 0;
-    float left = 0;
-    //Tutaj wykrywamy, czy robot nie jest za daleko od innych robotów
+        return false;
+    }     
     if(detectBlockade())
     {
+        
         right = getRightDistance();
         left = getLeftDistance();
-        if(right >= left)
+        if(turnAround)
+        {
+            if(abs(right - old_left) <= TURN_DIST_DIFF_TOL && abs(left - old_right) <= TURN_DIST_DIFF_TOL )
+            {
+                turnAround = false;
+            }
+        }
+        else if(right <= MIN_DISTANCE && left <= MIN_DISTANCE)
+        {
+            old_right = right;
+            old_left = left;
+            Right(SPEED);
+            turnAround = true;
+            return true;
+        }
+        else if(right >= left)
         {
             //Albo wykrywamy za pomocą żyroskopu albo krokowo
             //Serial.println("right");
@@ -58,6 +72,13 @@ bool autonomousMove()
             Left(SPEED);
             return true;
         }
+    }
+    else
+    {
+        Forward(SPEED);
+        turnAround = false;
+        //Tutaj wykrywamy, czy robot nie jest za daleko od innych robotów
+        //TooFarFromOtherRobots();
     }
     return false;
 }
