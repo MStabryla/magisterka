@@ -44,10 +44,13 @@ int TESTCOUNTER = 0;
 
 void debug_loop_distance(){
 
+  //odległośc z przodu
   float distanceF = getDistance(ECHO_1,TRIG_1);
   delay(5);
+  //odległośc z prawej
   float distanceR = getDistance(ECHO_2,TRIG_2);
   delay(5);
+  //odległość z lewej
   float distanceL = getDistance(ECHO_3,TRIG_3);
   
   Serial.print("front: ");
@@ -97,9 +100,9 @@ void debug_loop_movement(){
     Serial.println("forward");
     Forward(255);
     delay(5000);
-    // Serial.println("backward");
-    // Backward(255);
-    // delay(5000);
+    Serial.println("backward");
+    Backward(255);
+    delay(5000);
     Serial.println("stop");
     Stop();
     delay(1000);
@@ -107,10 +110,10 @@ void debug_loop_movement(){
 
 void debug_loop_movement_turn(){
     Serial.println("left");
-    Turn(255,0.35f);
+    Left(255);
     delay(5000);
     Serial.println("right");
-    Turn(255,0.65f);
+    Right(255);
     delay(5000);
     Serial.println("stop");
     Stop();
