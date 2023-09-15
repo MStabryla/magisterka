@@ -1,16 +1,24 @@
+#define CONFIG_LWIP_IPV4 1
+#define CONFIG_LWIP_IP_FORWARD 1
+#define CONFIG_LWIP_IPV4_NAPT 1
+#define CONFIG_LWIP_L2_TO_L3_COPY 1
+
 #include "Arduino.h"
 #include "libraries/broadcast.h"
 #include "libraries/autonomousSystem.h"
 #include "libraries/bluetoothControl.h"
 #include "libraries/mesh.h"
 #include "EEPROM.h"
-#include "ESP32Ping.h"
+#include "ESPping.h"
 
 String device_ID = "TEST";
 
 void setup() {
 
   EEPROM.begin(8);
+
+  EEPROM.writeString(1,"MAG_3");
+  EEPROM.commit();
 
   device_ID = EEPROM.readString(1);
   
@@ -36,8 +44,8 @@ void setup() {
   // Mesh_Network_Config();
   // Mesh_Start();
   //WiFi_Broadcast_Setup();
-  Bluetooth_Setup(device_ID);
-  //Wifi_Scan_Connect_2();
+  // Bluetooth_Setup(device_ID);
+  Wifi_Scan_Connect_2(device_ID);
 }
 
 int TESTCOUNTER = 0;
@@ -140,15 +148,15 @@ void debug_loop(){
 void loop() {
   // DEBUG
   //debug_loop();
-  Bluetooth_Loop();
-  
-  autonomousMovement();
+  // Bluetooth_Loop();
+  // autonomousMovement();
   digitalWrite(DIODE_AUTO_MODE,autoMode);
   // while(!WiFi_Scan_Connect(device_ID.c_str()))
   // {
   //   Serial.printf("WiFi connection not established. Restarting scan ...");
   //   delay(1000);
   // }
+  
   if(mesh_stated)
   {
     //jak działa mesh

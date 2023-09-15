@@ -1,27 +1,35 @@
+#define CONFIG_LWIP_DEBUG 1
+
 #include "WiFi.h"
 #include "string.h"
-#include "bridge_wifi.h"
-#include "bridge/esp_bridge.h"
+#include "esp_vfs_dev.h"
+#include "ip_napt.h"
+#include "esp32_nat_router.h"
+// #include "bridge_wifi.h"
+// #include "bridge/esp_bridge.h"
 
 #define TESTY_SIECI "MAXX_LAN"
 #define TESTY_SIECI_PASSWD  "debina23"
 
-#define WIFI_DEBUG true
+// #define TESTY_SIECI "Atlantis"
+// #define TESTY_SIECI_PASSWD  "zaq1@WSX"
+
+#define DEBUG true
 
 void WiFi_Broadcast_Setup()
 {
     WiFi.mode(WIFI_AP_STA);
-    //WiFi.disconnect();
+    WiFi.disconnect();
 }
 
 String selectedNetworkSSID;
 int selectedNetworkRSSI = INT_MIN; 
 
-void NewConnectionEventHandler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info)
-{
-    Serial.print("EVENT NEW_CONNECTION: ");
-    Serial.println((char *)&wifi_info.wifi_ap_staconnected.mac);
-}
+// void NewConnectionEventHandler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info)
+// {
+//     Serial.print("EVENT NEW_CONNECTION: ");
+//     Serial.println((char *)&wifi_info.wifi_ap_staconnected.mac);
+// }
 
 bool WiFi_Scan_Connect(String device_ID)
 {
@@ -80,7 +88,9 @@ bool WiFi_Scan_Connect(String device_ID)
         #if DEBUG == true
             Serial.println("Starting AP");
         #endif
-        //WiFi.softAP(device_ID.c_str(), NULL);
+        WiFi.softAP(device_ID.c_str(), NULL);
+        ip_napt_enable(WiFi.softAPIP(),1);
+        
         //WiFi.onEvent(NewConnectionEventHandler,ARDUINO_EVENT_WIFI_AP_STACONNECTED);
         //esp_bridge_create_all_netif();
 
@@ -90,24 +100,34 @@ bool WiFi_Scan_Connect(String device_ID)
         // esp_bridge_create_softap_netif(NULL, NULL, true, true);
         // esp_bridge_wifi_set(WIFI_MODE_APSTA, TESTY_SIECI, TESTY_SIECI_PASSWD, NULL);
         
-        // Serial.println("AP started");
+        Serial.println("AP started");
         return true;
     }
 }
 
-bool Wifi_Scan_Connect_2()
-{
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    //esp_bridge_wifi_init();
-    //ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    //esp_bridge_create_softap_netif(NULL, NULL, true, true);
-    esp_bridge_create_station_netif(NULL, NULL, false, false, TESTY_SIECI, TESTY_SIECI_PASSWD);
-    ESP_ERROR_CHECK(esp_bridge_wifi_set(WIFI_MODE_STA, TESTY_SIECI, TESTY_SIECI_PASSWD, NULL));
-    //esp_bridge_wifi_set(WIFI_MODE_AP, "TEST_MAXX_LAN", "", NULL);
-    //ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_ERROR_CHECK(esp_wifi_connect());
+bool Wifi_Scan_Connect_2(String device_ID)
+{
+    initialize_nvs();
+    get_portmap_tab();
+    Serial.print("Starting AP ");
+    Serial.println(device_ID);
+ 
+
+    //wifi_init(device_ID.c_str(),"","","","","","", TESTY_SIECI, TESTY_SIECI_PASSWD, DEFAULT_AP_IP);
+    wifi_init(TESTY_SIECI,"","", TESTY_SIECI_PASSWD,"","","", device_ID.c_str(), "", DEFAULT_AP_IP);
+    //ip_napt_enable(ipaddr_addr("192.168.0.1"), 1);
+    delay(3000);
+    //ip_napt_enable_no(0,0);
+    //ip_napt_enable_no(1,0);
+    ip_napt_enable_no(2,1);
+    
+    //ip_napt_enable(ipaddr_addr("127.0.0.1"), 0);
+    //ip_napt_enable(my_ap_ip, 1);
+    //ip_napt_enable_no(my_ip, 0);
+
+    //display_netif();
+
     Serial.println("AP started");
     return true;
 }
