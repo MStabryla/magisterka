@@ -6,21 +6,29 @@
 #include "esp_mesh_internal.h"
 #include "nvs_flash.h"
 
-#define DEBUG false
+#define DEBUG true
 
 #define RX_SIZE (1500)
 #define TX_SIZE (1460)
 
 void mesh_ip_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data){
     ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
+    /* Wyświetlenie typu komunikatu na podstawie zmiennej event_id */
+    #if DEBUG == true
     Serial.print("mesh_ip event: ");
     Serial.print(event_base);
     Serial.print(" ");
     Serial.println(event_id);
+    #endif
 }
 
+int child_counter = 0;
+bool parent_counter = false;
+
 void mesh_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data){
+    #if DEBUG == true
     Serial.print("mesh event: ");
+    /* Wyświetlenie typu komunikatu na podstawie zmiennej event_id */
     switch (event_id) {
         case MESH_EVENT_STARTED: Serial.print("MESH_EVENT_STARTED ");break;
         case MESH_EVENT_STOPPED: Serial.print("MESH_EVENT_STOPPED ");break;
@@ -53,25 +61,44 @@ void mesh_event_handler(void *event_handler_arg, esp_event_base_t event_base, in
     default:
         break;
     }
-    Serial.println(event_id);
+    Serial.print(event_id); Serial.print(" ");
+    int rssi = 0;
+    esp_wifi_sta_get_rssi(&rssi);
+    Serial.println(rssi);
+    #endif
+
+    switch(event_id)
+    {
+        case MESH_EVENT_CHILD_CONNECTED:
+            child_counter++; break;
+        case MESH_EVENT_CHILD_DISCONNECTED:
+            child_counter--; break;
+        case MESH_EVENT_PARENT_CONNECTED:
+            parent_counter = true; break;
+        case MESH_EVENT_PARENT_DISCONNECTED:
+            parent_counter = false; break;
+        default:
+            break;
+    };
 }
 
 static wifi_init_config_t config;
-void Mesh_Module_Init()
+
+void Mesh_Prepare_Network()
 {
-    //Inicjalizacja warstwy LwIP
+    /* Inicjalizacja warstwy LwIP */
     #if DEBUG == true
         Serial.println("DEBUG - lwIP");
     #endif
     ESP_ERROR_CHECK(esp_netif_init());
 
-    /* Konfiguracja domyślnych eventów */
+    /* Ustawienie pętli zdarzeń ESP */
     #if DEBUG == true
         Serial.println("DEBUG - event loop");
     #endif
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    /*  Wi-Fi initialization */
+    /*  Inicjalizacja interfejsu WiFi */
     #if DEBUG == true
         Serial.println("DEBUG - wifi config");
     #endif
@@ -86,6 +113,7 @@ void Mesh_Module_Init()
     #if DEBUG == true
         Serial.println("DEBUG - wifi start");
     #endif
+    /* Start sieci WiFi */
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
@@ -93,35 +121,36 @@ void Mesh_Module_Init()
 static const int CONFIG_MESH_MAX_LAYER = 3;
 static const uint8_t MESH_ID[6] = { 0x77, 0x77, 0x77, 0x77, 0x77, 0x77};
 static const uint8_t CONFIG_MESH_CHANNEL = 0x04;
-static const String CONFIG_MESH_ROUTER_SSID = "MAXX_LAN";
-static const String CONFIG_MESH_ROUTER_PASSWD = "debina23";
+static const String CONFIG_MESH_ROUTER_SSID = TESTY_SIECI;
+static const String CONFIG_MESH_ROUTER_PASSWD = TESTY_SIECI_PASSWD;
 static const uint8_t CONFIG_MESH_AP_CONNECTIONS = 0x03;
 static const uint8_t CONFIG_NONMESH_AP_CONNECTIONS = 0x07;
-static const String CONFIG_MESH_AP_PASSWD = "debina23";
+static const String CONFIG_MESH_AP_PASSWD = TESTY_SIECI_PASSWD;
 static wifi_auth_mode_t CONFIG_MESH_AP_AUTHMODE = WIFI_AUTH_WPA2_PSK;
 
 void Mesh_Init()
 {
+    /* Inicjalizacja sieci MESH */
     ESP_ERROR_CHECK(esp_mesh_init());
     ESP_ERROR_CHECK(esp_event_handler_register(MESH_EVENT, ESP_EVENT_ANY_ID, &mesh_event_handler, NULL));
+    /* Wybranie topologii drzewa */
     ESP_ERROR_CHECK(esp_mesh_set_topology(MESH_TOPO_TREE));
-    /*  set mesh max layer according to the topology */
+    /*  Ustawienie maksymalnej ilości warstw */
     ESP_ERROR_CHECK(esp_mesh_set_max_layer(CONFIG_MESH_MAX_LAYER));
+    /* Ustawienie szczegółow negocjacji głównego "rodzica" */
     ESP_ERROR_CHECK(esp_mesh_set_vote_percentage(1));
     ESP_ERROR_CHECK(esp_mesh_set_ap_assoc_expire(10));
 }
 
 void Mesh_Network_Config()
 {
-    /* Enable the Mesh IE encryption by default */
     mesh_cfg_t mesh_config = MESH_INIT_CONFIG_DEFAULT();
-    //mesh_config.crypto_funcs = &g_wifi_default_mesh_crypto_funcs;
     mesh_config.allow_channel_switch = true;
-    /* mesh ID */
+    /* ustawienie ID węzła jako identyfikatora robota */
     memcpy((uint8_t *) &mesh_config.mesh_id, MESH_ID, 6);
-    /* channel (must match the router's channel) */
+    /* ustawienie kanału WiFi */
     mesh_config.channel = CONFIG_MESH_CHANNEL;
-    /* router */
+    /* Podłączenie do routera sieci */
     mesh_config.router.allow_router_switch = true;
     mesh_config.router.ssid_len = strlen(CONFIG_MESH_ROUTER_SSID.c_str());
     memcpy((uint8_t *) &mesh_config.router.ssid, 
@@ -129,7 +158,7 @@ void Mesh_Network_Config()
     memcpy((uint8_t *) &mesh_config.router.password, 
     (uint8_t *)CONFIG_MESH_ROUTER_PASSWD.c_str(),
         CONFIG_MESH_ROUTER_PASSWD.length());
-    /* mesh softAP */
+    /* Ustawienie AP węzła */
     ESP_ERROR_CHECK(esp_mesh_set_ap_authmode(CONFIG_MESH_AP_AUTHMODE));
     memcpy((uint8_t *) &mesh_config.mesh_ap.password,(uint8_t *) CONFIG_MESH_AP_PASSWD.c_str(), CONFIG_MESH_AP_PASSWD.length());
     mesh_config.mesh_ap.max_connection = CONFIG_MESH_AP_CONNECTIONS;
@@ -150,9 +179,17 @@ bool mesh_stated = false;
 
 void Mesh_Start()
 {
-    //esp_mesh_set_self_organized(true, true);
+    /* Rozpoczęcie działania sieci mesh w węźle */
     ESP_ERROR_CHECK(esp_mesh_start());
     esp_mesh_set_self_organized(true, true);
     Serial.println("Mesh self organization started.");
     mesh_stated = true;
+}
+
+void Mesh_Stop()
+{
+    esp_mesh_set_self_organized(false, false);
+    ESP_ERROR_CHECK(esp_mesh_stop());
+    Serial.println("Mesh self organization stopped.");
+    mesh_stated = false;
 }

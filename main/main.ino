@@ -1,7 +1,8 @@
-#define CONFIG_LWIP_IPV4 1
-#define CONFIG_LWIP_IP_FORWARD 1
-#define CONFIG_LWIP_IPV4_NAPT 1
-#define CONFIG_LWIP_L2_TO_L3_COPY 1
+// #define CONFIG_LWIP_IPV4 1
+// #define CONFIG_LWIP_IP_FORWARD 1
+// #define CONFIG_LWIP_IPV4_NAPT 1
+// #define CONFIG_LWIP_L2_TO_L3_COPY 1
+#define BLINK_GPIO 2
 
 #include "Arduino.h"
 #include "libraries/broadcast.h"
@@ -13,12 +14,14 @@
 
 String device_ID = "TEST";
 
+#define CODE_TYPE 1
+
 void setup() {
 
   EEPROM.begin(8);
 
-  EEPROM.writeString(1,"MAG_3");
-  EEPROM.commit();
+  // EEPROM.writeString(1,"MAG_3");
+  // EEPROM.commit();
 
   device_ID = EEPROM.readString(1);
   
@@ -33,19 +36,19 @@ void setup() {
   pinMode(TRIG_3, OUTPUT);
   pinMode(ECHO_3, INPUT);
 
+  pinMode(BLINK_GPIO,OUTPUT);
+
   //diode
   pinMode(DIODE_AUTO_MODE, OUTPUT);
 
   Serial.print("ID: ");
   Serial.println(device_ID);
-  delay(1000);
-  // Mesh_Module_Init();
-  // Mesh_Init();
-  // Mesh_Network_Config();
-  // Mesh_Start();
-  //WiFi_Broadcast_Setup();
-  // Bluetooth_Setup(device_ID);
-  Wifi_Scan_Connect_2(device_ID);
+
+  #if CODE_TYPE == 2
+    WiFi_Broadcast_Setup();
+    Bluetooth_Setup(device_ID);
+  #endif
+  
 }
 
 int TESTCOUNTER = 0;
@@ -137,36 +140,70 @@ void autonomousMovement(){
 void debug_loop(){
   debug_loop_distance();
   debug_loop_movement();
-  // Bluetooth_Loop();
-  // autonomousMovement();
-  // if(!autoMode)
-  // {
-  //   Stop();
-  // }
 }
 
-void loop() {
-  // DEBUG
-  //debug_loop();
-  // Bluetooth_Loop();
-  // autonomousMovement();
-  digitalWrite(DIODE_AUTO_MODE,autoMode);
-  // while(!WiFi_Scan_Connect(device_ID.c_str()))
-  // {
-  //   Serial.printf("WiFi connection not established. Restarting scan ...");
-  //   delay(1000);
-  // }
-  
-  if(mesh_stated)
-  {
-    //jak działa mesh
-  }
+void Mesh()
+{
+  Mesh_Prepare_Network();
+  Mesh_Init();
+  Mesh_Network_Config();
+  Mesh_Start();
+}
+/*
+  0 - inicjalizacja mesh
+  1 - poruszanie się autonomiczne
+  2 - wyłączanie autonomicznego poruszania się i mesh
+  3 - przełączenie się na tryb AP
+*/
+int phase = 0, actPhase = 0;
 
-  // bool success = Ping.ping("www.google.com", 4);
-  // if(!success){
-  //   Serial.println("Ping failed");
-  // }
-  // else
-  //   Serial.println("Ping succesful.");
-  // delay(5000);
+void loop() {
+  digitalWrite(DIODE_AUTO_MODE,autoMode);
+  #if CODE_TYPE == 0
+    if(phase == 0)
+    {
+      if(!autoMode)
+        Mesh();
+      else
+        phase = 1;  
+    }
+    else if( phase == 1)
+    {
+      autonomousMovement();
+      if(!autoMode)
+        phase = 2;
+    }
+    else if( phase == 2)
+    {
+      if(mesh_stated)
+      {
+        Mesh_Stop();
+        WiFi_Broadcast_Setup();
+      }
+      while(!WiFi_Scan_Connect(device_ID.c_str()))
+      {
+        Serial.printf("WiFi connection not established. Restarting scan ...");
+        delay(1000);
+      }
+    }
+  #endif
+  #if CODE_TYPE == 1
+    if(autoMode)
+    {
+      autonomousMovement();
+    }
+  #endif
+  #if CODE_TYPE == 2
+    while(!WiFi_Scan_Connect(device_ID.c_str()))
+    {
+      Serial.printf("WiFi connection not established. Restarting scan ...");
+      delay(1000);
+    }
+  #endif
+  #if CODE_TYPE == 3
+    if(!mesh_stated)
+    {
+      Mesh();
+    }
+  #endif
 }
