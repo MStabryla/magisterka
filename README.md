@@ -1,3 +1,4 @@
+[main image](https://github.com/MStabryla/magisterka/blob/main/main.png?raw=true)
 # PL - Projekt magisterski z Informatyki Stosowanej
 
 Projekt magisterski polegał na utworzeniu sieci robotów poruszających się w sposób autonomiczny. Robot miał za cel poruszać się do przodu i na podstawie pomiaru czujników odległości wykonywać skręt w celu uniknięcia przeszkody. Głównym celem utworzenia robotów było utworzenie sieci WiFi poprzez rozprowadzenie sygnało przez roboty w sieci Mesh.
